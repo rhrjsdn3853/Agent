@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>펀드 상품</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css"> <!-- 공통 스타일 -->
+    <style>
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            margin-top: 80px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        .list-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .list-group-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative; /* 상대적 위치 지정 */
+        }
+
+        .list-group-item.hidden {
+            display: none;
+        }
+
+        .list-group-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+        }
+
+        .icon-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 60px;
+            height: 60px;
+            background-color: #e6f7ff;
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+
+        .icon-wrapper i {
+            font-size: 36px;
+            color: #007bff;
+        }
+
+        h4 {
+            color: #007bff;
+            margin: 0 0 10px 0;
+            font-size: 20px;
+        }
+
+        p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #333333;
+        }
+
+        p strong {
+            color: #555555;
+        }
+
+        .detail-btn {
+            position: absolute; /* 우측 상단으로 이동 */
+            top: 30px;
+            right: 15px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #007bff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .detail-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .detail-btn:active {
+            background-color: #004a99;
+        }
+
+        .load-more {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .load-more button {
+            background-color: #007bff;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .load-more button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .load-more button:active {
+            background-color: #004a99;
+        }
+
+        @media (min-width: 768px) {
+            .list-group {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 10px 50px;
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #333;
+            border-bottom: 3px solid transparent;
+            transition: color 0.3s, border-bottom 0.3s;
+        }
+
+        .tab:hover {
+            color: #007bff;
+        }
+
+        .tab.active {
+            color: #007bff;
+            border-bottom: 3px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{partials/navbar :: navbar}"></div>
+
+<div class="container">
+    <div class="tabs">
+        <a href="/product-list" class="tab" id="deposit-tab">예적금</a>
+        <a href="/product-list/card" class="tab" id="card-tab">카드</a>
+        <a href="/product-list/fund" class="tab active" id="fund-tab">펀드</a>
+    </div>
+
+    <div class="list-group">
+        <div th:each="fund, iterStat : ${products}"
+             th:classappend="${iterStat.index >= 6 ? 'hidden' : ''}"
+             class="list-group-item">
+            <div class="icon-wrapper">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div>
+                <h4 th:text="${fund.productName}">펀드명</h4>
+                <p><strong>상품 유형:</strong> <span th:text="${fund.productType}"></span></p>
+                <p><strong>위험도:</strong> <span th:text="${fund.riskLevel}"></span></p>
+                <p><strong>1개월 수익률:</strong> <span th:text="${fund.return1Month}"></span>%</p>
+                <p><strong>운용사:</strong> <span th:text="${fund.managementCompany}"></span></p>
+                <p><strong>상품 요약:</strong> <span th:text="${fund.productSummary}"></span></p>
+                <a th:href="${fund.url}" class="detail-btn" target="_blank">자세히 보기</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="load-more">
+        <button onclick="showMore()">더보기</button>
+    </div>
+</div>
+
+<script>
+    function showMore() {
+        const hiddenItems = document.querySelectorAll('.list-group-item.hidden');
+        hiddenItems.forEach((item, index) => {
+            if (index < 4) {
+                item.classList.remove('hidden');
+            }
+        });
+
+        if (document.querySelectorAll('.list-group-item.hidden').length === 0) {
+            document.querySelector('.load-more').style.display = 'none';
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const currentPath = window.location.pathname;
+        const tabs = document.querySelectorAll(".tab");
+
+        tabs.forEach(tab => {
+            if (tab.getAttribute("href") === currentPath) {
+                tab.classList.add("active");
+            }
+        });
+    });
+</script>
+</body>
+</html>

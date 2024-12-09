@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카드 상품</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/common.css"> <!-- 공통 스타일 -->
+    <style>
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            margin-top: 80px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-bar input {
+            width: 80%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .list-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .list-group-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 170px;
+        }
+
+        .list-group-item.hidden {
+            display: none;
+        }
+
+        .list-group-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+        }
+
+        .list-group-item .icon-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 80px;
+            height: 80px;
+            background-color: #e6f7ff;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .list-group-item .icon-wrapper i {
+            font-size: 36px;
+            color: #007bff;
+        }
+
+        .list-group-item h4 {
+            color: #007bff;
+            margin: 0 0 10px 0;
+            font-size: 20px;
+        }
+
+        .list-group-item p {
+            margin: 5px 0;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        .list-group-item p strong {
+            color: #555555;
+        }
+
+        .load-more {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .load-more button {
+            background-color: #007bff;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .load-more button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .load-more button:active {
+            background-color: #004a99;
+        }
+
+        @media (min-width: 768px) {
+            .list-group {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+        }
+
+        /* 네비게이션 탭 스타일 */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 10px 50px;
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #333;
+            border-bottom: 3px solid transparent;
+            transition: color 0.3s, border-bottom 0.3s;
+        }
+
+        .tab:hover {
+            color: #007bff;
+        }
+
+        .tab.active {
+            color: #007bff;
+            border-bottom: 3px solid #007bff;
+        }
+
+        .detail-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #007bff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .detail-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .detail-btn:active {
+            background-color: #004a99;
+            transform: scale(0.98);
+        }
+
+
+    </style>
+</head>
+<body>
+<div th:replace="~{partials/navbar :: navbar}"></div>
+
+<div class="container">
+    <div class="tabs">
+        <a href="/product-list" class="tab" id="deposit-tab">예적금</a>
+        <a href="/product-list/card" class="tab active" id="card-tab">카드</a>
+        <a href="/product-list/fund" class="tab" id="fund-tab">펀드</a>
+    </div>
+
+    <!-- 검색 바 -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" onkeyup="filterCards()" placeholder="카드명 또는 상세 설명으로 검색하세요">
+    </div>
+
+    <div class="list-group">
+        <div th:each="card, iterStat : ${products}"
+             th:classappend="${iterStat.index >= 6 ? 'hidden' : ''}"
+             class="list-group-item"
+             th:attr="data-name=${card.cardName}, data-details=${card.details}">
+            <!-- 카드 아이콘 -->
+            <div class="icon-wrapper">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <div>
+                <h4 th:text="${card.cardName}">카드명</h4>
+                <p><strong>연회비:</strong> <span th:text="${card.cardType}">카드 종류</span></p>
+                <p><strong>기준 실적:</strong> <span th:text="${card.annualFee}">기준 실적</span></p>
+                <p><strong>상세 설명:</strong> <span th:text="${card.details}">상세 설명</span></p>
+                <!-- "자세히 보기" 버튼 추가 -->
+                <a th:href="${card.url}" class="detail-btn" target="_blank">자세히 보기</a>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- 더보기 버튼 -->
+    <div class="load-more">
+        <button onclick="showMore()">더보기</button>
+    </div>
+</div>
+
+<script>
+    function filterCards() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const items = document.querySelectorAll('.list-group-item');
+        let visibleCount = 0;
+
+        items.forEach(item => {
+            const cardName = item.getAttribute('data-name').toLowerCase();
+            const details = item.getAttribute('data-details').toLowerCase();
+
+            if (cardName.includes(input) || details.includes(input)) {
+                item.style.display = 'flex'; // 보이기
+                if (visibleCount >= 6) {
+                    item.classList.add('hidden'); // 숨김 처리
+                } else {
+                    item.classList.remove('hidden'); // 숨김 해제
+                    visibleCount++;
+                }
+            } else {
+                item.style.display = 'none'; // 숨기기
+            }
+        });
+
+        // 더보기 버튼 상태 업데이트
+        const loadMoreButton = document.querySelector('.load-more button');
+        if (document.querySelectorAll('.list-group-item.hidden').length === 0) {
+            loadMoreButton.style.display = 'none';
+        } else {
+            loadMoreButton.style.display = 'block';
+        }
+    }
+
+
+    function showMore() {
+        const hiddenItems = document.querySelectorAll('.list-group-item.hidden');
+        hiddenItems.forEach((item, index) => {
+            if (index < 4) {
+                item.classList.remove('hidden');
+            }
+        });
+
+        if (document.querySelectorAll('.list-group-item.hidden').length === 0) {
+            document.querySelector('.load-more').style.display = 'none';
+        }
+    }
+
+    // 현재 페이지를 기준으로 활성화된 탭 표시
+    document.addEventListener("DOMContentLoaded", () => {
+        const currentPath = window.location.pathname;
+        const tabs = document.querySelectorAll(".tab");
+
+        tabs.forEach(tab => {
+            if (tab.getAttribute("href") === currentPath) {
+                tab.classList.add("active");
+            }
+        });
+    });
+
+</script>
+</body>
+</html>
